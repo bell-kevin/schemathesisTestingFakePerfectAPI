@@ -68,3 +68,14 @@ def test_echo_endpoint_handles_uppercase_and_repeat(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == expected.model_dump()
+
+
+def test_echo_endpoint_rejects_invalid_repeat(client: TestClient) -> None:
+    """The endpoint should reject repeat counts outside the allowed range."""
+
+    response = client.post("/echo", json={"message": "abc", "repeat": 6})
+
+    assert response.status_code == 422
+    body = response.json()
+    assert body["detail"][0]["loc"] == ["body", "repeat"]
+    assert body["detail"][0]["type"] == "less_than_equal"
