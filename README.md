@@ -25,3 +25,21 @@ code in Copilot.
 ![Logo of the GiveUpGitHub campaign](https://sfconservancy.org/img/GiveUpGitHub.png)
 
 <p align="right"><a href="#readme-top">back to top</a></p>
+
+## Running the Fake Perfect API
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Start the development server:
+   ```bash
+   uvicorn perfectapi.app:app --reload
+   ```
+3. Visit http://localhost:8000/docs to explore the automatically generated OpenAPI documentation.
+
+The repository also contains a static `openapi.yaml` document that mirrors the FastAPI-generated schema. It can be used directly with Schemathesis:
+
+```bash
+schemathesis run openapi.yaml --base-url=http://localhost:8000
+```

@@ -1,0 +1,81 @@
+openapi: 3.1.0
+info:
+  title: Fake Perfect API
+  version: 1.0.0
+  description: >-
+    A tiny API intentionally designed to have predictable behaviour. It exists
+    so that Schemathesis-based tests can focus on the API contract rather than
+    application logic.
+servers:
+  - url: http://localhost:8000
+paths:
+  /status:
+    get:
+      operationId: readStatus
+      tags:
+        - health
+      responses:
+        '200':
+          description: Successful status response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+  /echo:
+    post:
+      operationId: echo
+      tags:
+        - utilities
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+                repeat:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 1
+                uppercase:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Echoed message response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                  - result
+                  - length
+                  - repeat
+                  - uppercase
+                properties:
+                  result:
+                    type: string
+                  length:
+                    type: integer
+                    minimum: 0
+                  repeat:
+                    type: integer
+                    minimum: 1
+                    maximum: 5
+                  uppercase:
+                    type: boolean
