@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from fastapi import FastAPI
-from pydantic import BaseModel, Field, StrictBool, constr, conint
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, constr, conint
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,8 @@ class StatusResponse(BaseModel):
 
 class EchoRequest(BaseModel):
     """Input payload for the echo endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
 
     message: constr(min_length=1, max_length=1000)  # type: ignore[var-annotated]
     repeat: conint(ge=1, le=5) = 1  # type: ignore[var-annotated]
