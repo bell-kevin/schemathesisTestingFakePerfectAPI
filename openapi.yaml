@@ -79,3 +79,35 @@ paths:
                     maximum: 5
                   uppercase:
                     type: boolean
+        '422':
+          description: Validation error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
