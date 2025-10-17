@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Final
 
 from fastapi import FastAPI
-from pydantic import BaseModel, Field, constr, conint
+from pydantic import BaseModel, Field, StrictBool, constr, conint
 
 
 @dataclass(frozen=True)
@@ -38,7 +38,7 @@ class EchoRequest(BaseModel):
 
     message: constr(min_length=1, max_length=1000)  # type: ignore[var-annotated]
     repeat: conint(ge=1, le=5) = 1  # type: ignore[var-annotated]
-    uppercase: bool = False
+    uppercase: StrictBool = False
 
 
 class EchoResponse(BaseModel):
@@ -47,7 +47,7 @@ class EchoResponse(BaseModel):
     result: str = Field(..., description="The transformed message.")
     length: conint(ge=0)  # type: ignore[var-annotated]
     repeat: conint(ge=1, le=5)  # type: ignore[var-annotated]
-    uppercase: bool
+    uppercase: StrictBool
 
 
 _METADATA: Final = ServiceMetadata()
