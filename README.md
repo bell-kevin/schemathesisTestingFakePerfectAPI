@@ -20,6 +20,18 @@ The repository also contains a static `openapi.yaml` document that mirrors the F
 schemathesis run openapi.yaml --base-url=http://localhost:8000
 ```
 
+## Deploying on Render (managed free tier)
+
+The repository includes a [Render Blueprint](render.yaml) so you can deploy the API on Render's free web service tier:
+
+1. Create a new Render account (or log in) and click **New → Blueprint Deploy**.
+2. Point Render at this repository URL and select the `render.yaml` file when prompted.
+3. Accept the defaults in the generated service (plan: **Free**, runtime: **Python 3.11**).
+4. Click **Deploy**. Render will install the dependencies via `pip install -r requirements.txt` and start Uvicorn with `perfectapi.app:app`.
+5. Once the deploy finishes, your API will be available at the HTTPS URL Render assigns (check the **Logs** tab if you need to troubleshoot).
+
+The blueprint listens on the port provided by Render and exposes the OpenAPI docs at `/docs`, which Render also uses for its health check.
+
 --------------------------------------------------------------------------------------------------------------------------
 == We're Using GitHub Under Protest ==
 
