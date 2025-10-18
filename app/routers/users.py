@@ -31,6 +31,17 @@ from ..security import Principal, require_write_principal
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+PROBLEM_CONTENT = {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}}
+UNAUTHORIZED_RESPONSE = {
+    "description": "Authentication required.",
+    "content": PROBLEM_CONTENT,
+    "headers": {"WWW-Authenticate": {"schema": {"type": "string"}}},
+}
+FORBIDDEN_RESPONSE = {
+    "description": "Insufficient privileges.",
+    "content": PROBLEM_CONTENT,
+}
+
 
 def _compute_etag(payload: object) -> str:
     """Create an ETag for the given payload."""
@@ -156,6 +167,8 @@ async def list_users(
             "description": "User already exists.",
             "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def create_user(
@@ -257,6 +270,8 @@ async def get_user(
             "description": "User already exists.",
             "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def replace_user(
@@ -304,6 +319,8 @@ async def replace_user(
             "description": "Conflict updating user.",
             "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def update_user(
@@ -344,6 +361,11 @@ async def update_user(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete user",
     operation_id="deleteUser",
+    responses={
+        204: {"description": "User deleted."},
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
+    },
 )
 async def delete_user(
     user_id: UUID,

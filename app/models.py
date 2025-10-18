@@ -5,11 +5,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import Column, Numeric
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class OrderStatus(str, Enum):
@@ -32,8 +32,6 @@ class User(SQLModel, table=True):
     joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    orders: List["Order"] = Relationship(back_populates="user")
-    audit_logs: List["AuditLog"] = Relationship(back_populates="user")
 
 
 class Order(SQLModel, table=True):
@@ -49,9 +47,6 @@ class Order(SQLModel, table=True):
     placed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), index=True)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    user: Optional[User] = Relationship(back_populates="orders")
-    items: List["Item"] = Relationship(back_populates="order")
-    audit_logs: List["AuditLog"] = Relationship(back_populates="order")
 
 
 class Item(SQLModel, table=True):
@@ -67,7 +62,6 @@ class Item(SQLModel, table=True):
         default=Decimal("0.00"),
     )
 
-    order: Optional[Order] = Relationship(back_populates="items")
 
 
 class AuditLog(SQLModel, table=True):
@@ -80,5 +74,3 @@ class AuditLog(SQLModel, table=True):
     summary: str
     performed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), index=True)
 
-    user: Optional[User] = Relationship(back_populates="audit_logs")
-    order: Optional[Order] = Relationship(back_populates="audit_logs")

@@ -2,14 +2,6 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Perfect Schema API",
-    "summary": "A deliberately precise API for contract testing.",
-    "contact": {
-      "name": "API Support",
-      "email": "support@example.com"
-    },
-    "license": {
-      "name": "Apache-2.0"
-    },
     "version": "1.0.0"
   },
   "paths": {
@@ -355,6 +347,129 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -625,6 +740,129 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -755,6 +993,129 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -796,7 +1157,130 @@
         ],
         "responses": {
           "204": {
-            "description": "Successful Response"
+            "description": "User deleted."
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
@@ -1249,6 +1733,129 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -1306,6 +1913,129 @@
           },
           "404": {
             "description": "Order not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1435,6 +2165,129 @@
           },
           "404": {
             "description": "Order not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
             "content": {
               "application/problem+json": {
                 "schema": {
@@ -1660,7 +2513,188 @@
         ],
         "responses": {
           "204": {
-            "description": "Successful Response"
+            "description": "Order deleted."
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient privileges.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found.",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "description": "RFC 7807 compatible problem details.",
+                  "properties": {
+                    "type": {
+                      "default": "about:blank",
+                      "examples": [
+                        "https://example.com/problems/not-found"
+                      ],
+                      "title": "Type",
+                      "type": "string"
+                    },
+                    "title": {
+                      "examples": [
+                        "Resource not found"
+                      ],
+                      "title": "Title",
+                      "type": "string"
+                    },
+                    "status": {
+                      "examples": [
+                        404
+                      ],
+                      "maximum": 599,
+                      "minimum": 100,
+                      "title": "Status",
+                      "type": "integer"
+                    },
+                    "detail": {
+                      "examples": [
+                        "User with id ... was not found"
+                      ],
+                      "title": "Detail",
+                      "type": "string"
+                    },
+                    "instance": {
+                      "examples": [
+                        "/users/123"
+                      ],
+                      "title": "Instance",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "status",
+                    "detail",
+                    "instance"
+                  ],
+                  "title": "ProblemDetail",
+                  "type": "object"
+                }
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
