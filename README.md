@@ -20,6 +20,12 @@ The repository also contains a static `openapi.yaml` document that mirrors the F
 schemathesis run openapi.yaml --base-url=http://localhost:8000
 ```
 
+If you prefer to test against the deployed Render instance, keep in mind that the service can take a little while to wake up from cold starts on the free tier. Provide a larger request timeout so Schemathesis waits long enough for the OpenAPI document to load:
+
+```bash
+schemathesis run https://fake-perfect-api.onrender.com/openapi.yaml --request-timeout=30
+```
+
 ## Deploying on Render (managed free tier)
 
 The repository includes a [Render Blueprint](render.yaml) so you can deploy the API on Render's free web service tier:
