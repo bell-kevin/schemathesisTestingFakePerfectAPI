@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import time
+from functools import lru_cache
 from http import HTTPStatus
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -24,6 +26,10 @@ class UTF8JSONResponse(JSONResponse):
     """JSON response that always declares UTF-8."""
 
     media_type = "application/json; charset=utf-8"
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_OPENAPI_PATH = BASE_DIR / "openapi-static" / "openapi.json"
 
 
 app = FastAPI(
@@ -144,3 +150,27 @@ app.include_router(routers.status.router)
 app.include_router(routers.echo.router)
 app.include_router(routers.users.router)
 app.include_router(routers.orders.router)
+
+
+@lru_cache(maxsize=1)
+def _load_static_openapi_schema() -> dict:
+    """Load the static OpenAPI schema bundled with the project."""
+
+    if not STATIC_OPENAPI_PATH.exists():
+        msg = "Static OpenAPI export is missing; regenerate the bundled schema before deployment."
+        raise RuntimeError(msg)
+    return json.loads(STATIC_OPENAPI_PATH.read_text())
+
+
+def custom_openapi() -> dict:
+    """Serve the bundled OpenAPI document instead of regenerating it."""
+
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    schema = _load_static_openapi_schema()
+    app.openapi_schema = schema
+    return schema
+
+
+app.openapi = custom_openapi
