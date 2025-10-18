@@ -68,8 +68,91 @@ def test_build_schemathesis_command_includes_custom_arguments(tmp_path: Path) ->
         "https://service.test",
         "--request-timeout",
         "42.0",
+        "--exclude-checks",
+        "unsupported_method",
         "--hypothesis-deadline",
         "250",
+    ]
+
+
+def test_build_schemathesis_command_skips_default_exclusion_when_overridden(tmp_path: Path) -> None:
+    """Supplying explicit check flags should prevent default exclusions."""
+
+    spec_path = tmp_path / "schema.yaml"
+    spec_path.write_text("openapi: 3.1.0\n")
+
+    command = _build_schemathesis_command(
+        base_url="https://service.test",
+        spec_path=spec_path,
+        request_timeout=42.0,
+        extra_args=["--checks", "all"],
+    )
+
+    assert command == [
+        "uvx",
+        "schemathesis",
+        "run",
+        str(spec_path),
+        "--base-url",
+        "https://service.test",
+        "--request-timeout",
+        "42.0",
+        "--checks",
+        "all",
+    ]
+
+
+def test_build_schemathesis_command_handles_short_checks_flag(tmp_path: Path) -> None:
+    """The short ``-c`` form should also disable default exclusions."""
+
+    spec_path = tmp_path / "schema.yaml"
+    spec_path.write_text("openapi: 3.1.0\n")
+
+    command = _build_schemathesis_command(
+        base_url="https://service.test",
+        spec_path=spec_path,
+        request_timeout=42.0,
+        extra_args=["-c", "all"],
+    )
+
+    assert command == [
+        "uvx",
+        "schemathesis",
+        "run",
+        str(spec_path),
+        "--base-url",
+        "https://service.test",
+        "--request-timeout",
+        "42.0",
+        "-c",
+        "all",
+    ]
+
+
+def test_build_schemathesis_command_respects_custom_exclusions(tmp_path: Path) -> None:
+    """Explicit ``--exclude-checks`` arguments should be preserved as-is."""
+
+    spec_path = tmp_path / "schema.yaml"
+    spec_path.write_text("openapi: 3.1.0\n")
+
+    command = _build_schemathesis_command(
+        base_url="https://service.test",
+        spec_path=spec_path,
+        request_timeout=42.0,
+        extra_args=["--exclude-checks", "status_code_conformance"],
+    )
+
+    assert command == [
+        "uvx",
+        "schemathesis",
+        "run",
+        str(spec_path),
+        "--base-url",
+        "https://service.test",
+        "--request-timeout",
+        "42.0",
+        "--exclude-checks",
+        "status_code_conformance",
     ]
 
 

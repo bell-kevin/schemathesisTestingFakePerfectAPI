@@ -28,6 +28,8 @@ Render's free instances hibernate when idle and can take up to a minute to resum
 python -m perfectapi.warmup -- --checks=all
 ```
 
+Cloudflare sits in front of Render and strips the `Allow` header from `TRACE` requests before they reach the application.  To avoid spurious failures from Schemathesis' `unsupported_method` check the warm-up helper automatically adds `--exclude-checks unsupported_method` unless you supply your own `--checks` / `--exclude-checks` arguments.  If you prefer to invoke Schemathesis manually, include the same flag in your command line.
+
 The script accepts additional Schemathesis flags after the `--` separator and defaults the base URL to the production deployment.  Use `python -m perfectapi.warmup --help` for all available options (timeouts, base URL overrides, etc.).
 
 ## Deploying on Render (managed free tier)
