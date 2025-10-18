@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Annotated, Final
 
 from fastapi import FastAPI, Query, Request
-from pydantic import BaseModel, ConfigDict, Field, StrictBool, constr, conint
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, StrictBool, constr, conint
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_405_METHOD_NOT_ALLOWED
 
@@ -52,6 +52,23 @@ class EchoResponse(BaseModel):
     length: conint(ge=0)  # type: ignore[var-annotated]
     repeat: conint(ge=1, le=5)  # type: ignore[var-annotated]
     uppercase: StrictBool
+
+
+def _parse_query_boolean(value: bool | str) -> bool:
+    """Parse boolean-like query parameters without accepting loose coercions."""
+
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in {"true", "false"}:
+            return normalized == "true"
+
+    raise ValueError("Invalid boolean string")
+
+
+StrictQueryBool = Annotated[bool, BeforeValidator(_parse_query_boolean)]
 
 
 class InspectResponse(BaseModel):
@@ -137,7 +154,7 @@ def create_app() -> FastAPI:
             ),
         ],
         case_sensitive: Annotated[
-            bool,
+            StrictQueryBool,
             Query(
                 description="If false, the palindrome check ignores character casing.",
             ),
