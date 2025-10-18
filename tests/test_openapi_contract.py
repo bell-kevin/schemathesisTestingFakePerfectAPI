@@ -35,3 +35,18 @@ def test_static_openapi_matches_runtime() -> None:
     static_data = json.loads(static_path.read_text())
     live_data = client.get("/openapi.json").json()
     assert static_data == live_data
+
+
+def test_trace_requests_return_problem_with_allow_header() -> None:
+    trace_cases = {
+        "/status": "GET, HEAD",
+        "/echo": "POST",
+    }
+
+    for path, expected_allow in trace_cases.items():
+        response = client.request("TRACE", path)
+        assert response.status_code == 405
+        assert response.headers["allow"] == expected_allow
+        payload = response.json()
+        assert payload["status"] == 405
+        assert payload["title"] == "Method not allowed"
