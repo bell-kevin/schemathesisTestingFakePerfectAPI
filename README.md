@@ -1,6 +1,16 @@
 <a name="readme-top"></a>
 
-# 
+#
+
+## What's this API all about?
+
+Imagine you have a friendly robot that loves to play with words. This API is like a set of buttons you can press to ask the robot for help:
+
+* **"How are you doing?" check** – When you visit `/status`, the robot simply says everything is "ok" so you know the service is awake.
+* **Message repeater** – When you send a message to `/echo`, the robot repeats it back to you. You can ask it to shout (UPPERCASE) or say the message a few times in a row, up to five. It also tells you how long the final message is.
+* **Word mirror** – When you use `/inspect`, the robot looks at your message, spells it backwards like a mirror, counts how many characters it has, and tells you whether the message reads the same forwards and backwards (that's called a palindrome!). You can even tell it to ignore upper- vs lower-case letters when it checks.
+
+So, the API is basically a tidy word helper that always answers in the same predictable way, which makes it great for practicing and testing.
 
 ## Running the Fake Perfect API
 
