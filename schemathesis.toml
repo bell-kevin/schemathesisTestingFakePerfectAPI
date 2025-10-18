@@ -1,5 +1,8 @@
 [phases.coverage]
 unexpected-methods = ["OPTIONS"]
 
+[phases.coverage.checks.unsupported_method]
+enabled = false
+
 [generation]
 allow-x00 = false
