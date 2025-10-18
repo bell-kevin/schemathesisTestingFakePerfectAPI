@@ -20,11 +20,15 @@ The repository also contains a static `openapi.yaml` document that mirrors the F
 schemathesis run openapi.yaml --base-url=http://localhost:8000
 ```
 
-If you prefer to test against the deployed Render instance, keep in mind that the service can take a little while to wake up from cold starts on the free tier. Provide a larger request timeout so Schemathesis waits long enough for the OpenAPI document to load:
+### Running Schemathesis against the Render deployment
+
+Render's free instances hibernate when idle and can take up to a minute to resume.  Schemathesis applies a 10 second read timeout while downloading the OpenAPI document, so attempts to load `https://fake-perfect-api.onrender.com/openapi.yaml` directly frequently fail on a cold start.  Use the warm-up helper shipped with this repository to wait for the service and then execute Schemathesis with the local schema file:
 
 ```bash
-schemathesis run https://fake-perfect-api.onrender.com/openapi.yaml --request-timeout=30
+python -m perfectapi.warmup -- --checks=all
 ```
+
+The script accepts additional Schemathesis flags after the `--` separator and defaults the base URL to the production deployment.  Use `python -m perfectapi.warmup --help` for all available options (timeouts, base URL overrides, etc.).
 
 ## Deploying on Render (managed free tier)
 
