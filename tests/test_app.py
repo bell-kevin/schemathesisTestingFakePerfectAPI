@@ -81,6 +81,36 @@ def test_echo_endpoint_rejects_invalid_repeat(client: TestClient) -> None:
     assert body["detail"][0]["type"] == "less_than_equal"
 
 
+def test_inspect_endpoint_detects_palindromes(client: TestClient) -> None:
+    """The inspect endpoint should report palindrome information."""
+
+    response = client.get("/inspect", params={"message": "level"})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "message": "level",
+        "mirrored": "level",
+        "length": 5,
+        "is_palindrome": True,
+        "case_sensitive": True,
+    }
+
+
+def test_inspect_endpoint_supports_case_insensitive_checks(client: TestClient) -> None:
+    """Case-insensitive palindrome detection should be available via a query flag."""
+
+    response = client.get("/inspect", params={"message": "Level", "case_sensitive": False})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "message": "Level",
+        "mirrored": "leveL",
+        "length": 5,
+        "is_palindrome": True,
+        "case_sensitive": False,
+    }
+
+
 def test_status_unsupported_method_reports_allowed_methods(client: TestClient) -> None:
     """405 responses must advertise the methods supported for the resource."""
 

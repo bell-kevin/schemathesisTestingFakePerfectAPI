@@ -46,6 +46,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /inspect:
+    get:
+      tags:
+      - utilities
+      summary: Inspect
+      description: Analyse a message and report simple textual characteristics.
+      operationId: inspect_inspect_get
+      parameters:
+      - name: message
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 1000
+          minLength: 1
+        description: Message to analyse for palindromic properties.
+      - name: case_sensitive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+        description: If false, the palindrome check ignores character casing.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InspectResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     EchoRequest:
@@ -97,6 +133,38 @@ components:
       - uppercase
       title: EchoResponse
       description: Successful response payload for the echo endpoint.
+    InspectResponse:
+      properties:
+        message:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Message
+        mirrored:
+          type: string
+          maxLength: 1000
+          minLength: 1
+          title: Mirrored
+        length:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Length
+        is_palindrome:
+          type: boolean
+          title: Is Palindrome
+        case_sensitive:
+          type: boolean
+          title: Case Sensitive
+      type: object
+      required:
+      - message
+      - mirrored
+      - length
+      - is_palindrome
+      - case_sensitive
+      title: InspectResponse
+      description: Response payload for the message inspection endpoint.
     HTTPValidationError:
       properties:
         detail:

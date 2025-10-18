@@ -8,9 +8,9 @@ unexpected server-side errors.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Final
+from typing import Annotated, Final
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, constr, conint
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_405_METHOD_NOT_ALLOWED
@@ -52,6 +52,16 @@ class EchoResponse(BaseModel):
     length: conint(ge=0)  # type: ignore[var-annotated]
     repeat: conint(ge=1, le=5)  # type: ignore[var-annotated]
     uppercase: StrictBool
+
+
+class InspectResponse(BaseModel):
+    """Response payload for the message inspection endpoint."""
+
+    message: constr(min_length=1, max_length=1000)  # type: ignore[var-annotated]
+    mirrored: constr(min_length=1, max_length=1000)  # type: ignore[var-annotated]
+    length: conint(ge=1, le=1000)  # type: ignore[var-annotated]
+    is_palindrome: StrictBool
+    case_sensitive: StrictBool
 
 
 _METADATA: Final = ServiceMetadata()
@@ -115,6 +125,36 @@ def create_app() -> FastAPI:
         message = payload.message.upper() if payload.uppercase else payload.message
         result = message * payload.repeat
         return EchoResponse(result=result, length=len(result), repeat=payload.repeat, uppercase=payload.uppercase)
+
+    @application.get("/inspect", response_model=InspectResponse, tags=["utilities"])
+    async def inspect(
+        message: Annotated[
+            str,
+            Query(
+                min_length=1,
+                max_length=1000,
+                description="Message to analyse for palindromic properties.",
+            ),
+        ],
+        case_sensitive: Annotated[
+            bool,
+            Query(
+                description="If false, the palindrome check ignores character casing.",
+            ),
+        ] = True,
+    ) -> InspectResponse:
+        """Analyse a message and report simple textual characteristics."""
+
+        normalized = message if case_sensitive else message.casefold()
+        mirrored = message[::-1]
+        is_palindrome = normalized == normalized[::-1]
+        return InspectResponse(
+            message=message,
+            mirrored=mirrored,
+            length=len(message),
+            is_palindrome=is_palindrome,
+            case_sensitive=case_sensitive,
+        )
 
     return application
 
