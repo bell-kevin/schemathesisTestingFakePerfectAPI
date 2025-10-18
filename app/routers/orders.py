@@ -22,6 +22,17 @@ from ..security import Principal, require_order_write_principal
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
+PROBLEM_CONTENT = {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}}
+UNAUTHORIZED_RESPONSE = {
+    "description": "Authentication required.",
+    "content": PROBLEM_CONTENT,
+    "headers": {"WWW-Authenticate": {"schema": {"type": "string"}}},
+}
+FORBIDDEN_RESPONSE = {
+    "description": "Insufficient privileges.",
+    "content": PROBLEM_CONTENT,
+}
+
 INVENTORY = {
     "LPT-1000": ("Analytical Engine Manual", Decimal("125.50")),
     "COB-1959": ("COBOL Specification", Decimal("89.90")),
@@ -135,12 +146,14 @@ async def list_orders(
         },
         400: {
             "description": "Invalid order payload.",
-            "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
+            "content": PROBLEM_CONTENT,
         },
         404: {
             "description": "User not found.",
-            "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
+            "content": PROBLEM_CONTENT,
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def create_order(
@@ -216,8 +229,10 @@ async def create_order(
         },
         404: {
             "description": "Order not found.",
-            "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
+            "content": PROBLEM_CONTENT,
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def get_order(order_id: UUID, session: Session = Depends(get_session)) -> Response:
@@ -242,8 +257,10 @@ async def get_order(order_id: UUID, session: Session = Depends(get_session)) -> 
         },
         404: {
             "description": "Order not found.",
-            "content": {"application/problem+json": {"schema": ProblemDetail.model_json_schema()}},
+            "content": PROBLEM_CONTENT,
         },
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
     },
 )
 async def replace_order(
@@ -318,6 +335,15 @@ async def update_order(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete order",
     operation_id="deleteOrder",
+    responses={
+        204: {"description": "Order deleted."},
+        401: UNAUTHORIZED_RESPONSE,
+        403: FORBIDDEN_RESPONSE,
+        404: {
+            "description": "Order not found.",
+            "content": PROBLEM_CONTENT,
+        },
+    },
 )
 async def delete_order(
     order_id: UUID,

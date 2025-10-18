@@ -10,6 +10,7 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRoute
@@ -84,16 +85,10 @@ async def problem_response(
 
 @app.exception_handler(RequestValidationError)
 async def handle_validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:
-    detail = "; ".join(
-        f"{'.'.join(str(loc) for loc in error['loc'])}: {error['msg']}" for error in exc.errors()
-    )
-    return await problem_response(
-        request,
-        status.HTTP_422_UNPROCESSABLE_ENTITY,
-        "Validation error",
-        detail or "Request validation failed",
-        type_="https://example.com/problems/validation-error",
-    )
+    response = await request_validation_exception_handler(request, exc)
+    if response.headers.get("content-type") == "application/json":
+        response.media_type = "application/json; charset=utf-8"
+    return response
 
 
 @app.exception_handler(HTTPException)

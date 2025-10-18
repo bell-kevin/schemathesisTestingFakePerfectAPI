@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from typing import List, Literal, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, StrictInt, StrictStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StrictBool, StrictInt, StrictStr, model_validator
 
 from .models import OrderStatus
 
@@ -39,6 +39,14 @@ class EchoRequest(BaseModel):
     message: StrictStr = Field(min_length=1, max_length=500, examples=["Hello"])
     repeat: StrictInt = Field(default=1, ge=1, le=10, examples=[2])
     uppercase: StrictBool = Field(default=False, examples=[True])
+
+    @model_validator(mode="before")
+    def _coerce_integral_repeat(cls, values: dict) -> dict:
+        repeat = values.get("repeat") if isinstance(values, dict) else None
+        if isinstance(repeat, float) and repeat.is_integer():
+            values = dict(values)
+            values["repeat"] = int(repeat)
+        return values
 
 
 class EchoResponse(BaseModel):
@@ -106,6 +114,18 @@ class UserRead(UserBase):
     joined_at: datetime
     updated_at: datetime
 
+    @model_validator(mode="before")
+    def _ensure_timezone(cls, data):
+        if hasattr(data, "model_dump"):
+            data = data.model_dump()
+        if isinstance(data, dict):
+            data = dict(data)
+            for field in ("joined_at", "updated_at"):
+                value = data.get(field)
+                if isinstance(value, datetime) and value.tzinfo is None:
+                    data[field] = value.replace(tzinfo=timezone.utc)
+        return data
+
 
 class UserDetail(UserRead):
     """Detailed user representation including related resources."""
@@ -151,6 +171,18 @@ class OrderRead(OrderBase):
     user_id: UUID
     placed_at: datetime
     updated_at: datetime
+
+    @model_validator(mode="before")
+    def _ensure_timezone(cls, data):
+        if hasattr(data, "model_dump"):
+            data = data.model_dump()
+        if isinstance(data, dict):
+            data = dict(data)
+            for field in ("placed_at", "updated_at"):
+                value = data.get(field)
+                if isinstance(value, datetime) and value.tzinfo is None:
+                    data[field] = value.replace(tzinfo=timezone.utc)
+        return data
 
 
 class OrderCollection(BaseModel):
