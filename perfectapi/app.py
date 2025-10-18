@@ -10,8 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Final
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, constr, conint
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.routing import Match
+from starlette.status import HTTP_405_METHOD_NOT_ALLOWED
 
 
 @dataclass(frozen=True)
@@ -55,10 +58,49 @@ class EchoResponse(BaseModel):
 _METADATA: Final = ServiceMetadata()
 
 
+def _allowed_methods(application: FastAPI, path: str) -> list[str]:
+    """Return the HTTP methods supported by the application for the given path."""
+
+    scope = {"type": "http", "path": path, "root_path": ""}
+    allowed: set[str] = set()
+
+    for route in application.router.routes:
+        match, _ = route.matches(scope)
+        if match is not Match.FULL:
+            continue
+
+        methods = getattr(route, "methods", None)
+        if methods:
+            allowed.update(methods)
+
+    if "GET" in allowed:
+        allowed.add("HEAD")
+
+    if allowed:
+        allowed.add("OPTIONS")
+
+    return sorted(allowed)
+
+
+class EnsureAllowHeaderMiddleware(BaseHTTPMiddleware):
+    """Guarantee that 405 responses include an Allow header."""
+
+    async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+        response = await call_next(request)
+
+        if response.status_code == HTTP_405_METHOD_NOT_ALLOWED and "allow" not in response.headers:
+            allowed_methods = _allowed_methods(request.app, request.scope["path"])
+            if allowed_methods:
+                response.headers["Allow"] = ", ".join(allowed_methods)
+
+        return response
+
+
 def create_app() -> FastAPI:
     """Create a configured :class:`FastAPI` application."""
 
     application = FastAPI(title=_METADATA.title, version=_METADATA.version, description=_METADATA.description)
+    application.add_middleware(EnsureAllowHeaderMiddleware)
 
     @application.get("/status", response_model=StatusResponse, tags=["health"])
     async def read_status() -> StatusResponse:
