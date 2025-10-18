@@ -1,11 +1,12 @@
+# render.yaml
 services:
   - type: web
     name: fake-perfect-api
-    env: python
+    runtime: python
     plan: free
-    branch: main
-    buildCommand: pip install --no-cache-dir -r requirements.txt
+    region: oregon
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn perfectapi.app:app --host 0.0.0.0 --port $PORT
-    healthCheckPath: /docs
-    autoDeploy: true
-    pythonVersion: "3.11"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
