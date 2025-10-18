@@ -111,6 +111,17 @@ def test_inspect_endpoint_supports_case_insensitive_checks(client: TestClient) -
     }
 
 
+def test_inspect_endpoint_rejects_non_boolean_flag(client: TestClient) -> None:
+    """The inspect endpoint should reject values that are not explicit booleans."""
+
+    response = client.get("/inspect", params={"message": "hello", "case_sensitive": "0"})
+
+    assert response.status_code == 422
+    body = response.json()
+    assert body["detail"][0]["loc"] == ["query", "case_sensitive"]
+    assert body["detail"][0]["type"] == "value_error"
+
+
 def test_status_unsupported_method_reports_allowed_methods(client: TestClient) -> None:
     """405 responses must advertise the methods supported for the resource."""
 
