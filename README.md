@@ -73,6 +73,28 @@ schemathesis run http://127.0.0.1:8000/openapi.json \
 Configuration is stored in [`schemathesis.toml`](schemathesis.toml), which disables
 unexpected HTTP method exploration and null-byte payloads.
 
+#### Running against the hosted demo
+
+The public instance at `https://fake-perfect-api.onrender.com` runs on Render's free
+plan, which suspends the service after periods of inactivity. When the instance is
+waking up, fetching the OpenAPI document can take longer than the default
+10-second client timeout. Pass the [`--wait-for-schema`](https://schemathesis.readthedocs.io/en/stable/cli.html#cmdoption-schemathesis-run-wait-for-schema)
+flag so Schemathesis patiently waits for the schema to become available, and relax the
+per-request timeout to accommodate the cold start:
+
+```powershell
+uvx schemathesis run https://fake-perfect-api.onrender.com/openapi.json `
+  --wait-for-schema 60 `
+  --request-timeout 30 `
+  --phases=fuzzing `
+  --workers 32 `
+  --checks all `
+  --exclude-checks response_headers_conformance
+```
+
+You can also warm the service manually with `Invoke-WebRequest` or `curl` before
+executing the Schemathesis suite if you prefer to keep the default timeouts.
+
 ### Testing
 
 ```bash
