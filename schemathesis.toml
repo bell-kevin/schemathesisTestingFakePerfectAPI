@@ -1,5 +1,5 @@
 [phases.coverage]
-unexpected-methods = []
+unexpected-methods = ["OPTIONS"]
 
 [generation]
 allow-x00 = false
