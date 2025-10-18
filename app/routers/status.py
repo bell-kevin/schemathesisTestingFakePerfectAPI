@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import time
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request, status
 
 from ..schemas import StatusResponse
 from ..version import APP_VERSION
 
 router = APIRouter(prefix="", tags=["Status"])
+
+ALLOWED_METHODS = ("GET", "HEAD")
 
 
 @router.get(
@@ -35,4 +37,15 @@ async def get_status(request: Request) -> StatusResponse:
         version=APP_VERSION,
         uptime_seconds=uptime,
         monotonic_timestamp=time.monotonic(),
+    )
+
+
+@router.api_route("/status", methods=["TRACE"], include_in_schema=False)
+async def status_trace() -> None:
+    """Return a 405 response with an Allow header for unsupported TRACE requests."""
+
+    raise HTTPException(
+        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+        detail="Method not allowed",
+        headers={"Allow": ", ".join(ALLOWED_METHODS)},
     )
