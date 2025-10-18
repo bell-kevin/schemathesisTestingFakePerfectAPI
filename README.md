@@ -116,7 +116,3 @@ The container entrypoint launches Uvicorn with 2 workers, proxy header support, 
 GitHub Actions workflow [`contract.yml`](.github/workflows/contract.yml) installs the
 package, boots the application, and executes Schemathesis with the full `--checks all`
 configuration to guarantee contract conformance on every commit.
-
-## License
-
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
