@@ -1,12 +1,13 @@
-# render.yaml (at repo root)
+# render.yaml
 services:
   - type: web
     name: fake-perfect-api
-    env: python              # <- use "env: python" for Blueprints
+    env: python
     plan: free
     region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn perfectapi.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /status
     envVars:
-      - key: PYTHON_VERSION  # Render often prefers 3.12 right now
+      - key: PYTHON_VERSION
         value: 3.12.6
