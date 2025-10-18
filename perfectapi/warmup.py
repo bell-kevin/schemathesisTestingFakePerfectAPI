@@ -32,6 +32,12 @@ import httpx
 DEFAULT_BASE_URL = "https://fake-perfect-api.onrender.com"
 DEFAULT_SPEC_PATH = Path(__file__).resolve().parents[1] / "openapi.yaml"
 DEFAULT_STATUS_PATH = "/status"
+# Cloudflare terminates ``TRACE`` requests before they reach the Render
+# deployment which means Schemathesis cannot receive the required ``Allow``
+# header for the ``unsupported_method`` check.  We disable that check by
+# default when exercising the hosted service so that the run focuses on the
+# behaviours our application can control.
+DEFAULT_EXCLUDED_CHECKS = ("unsupported_method",)
 
 
 class ServiceUnavailableError(RuntimeError):
@@ -96,6 +102,17 @@ def wait_for_service(
     ) from last_error
 
 
+def _should_apply_default_exclusions(arguments: Iterable[str]) -> bool:
+    """Return ``True`` if we should inject the default ``--exclude-checks`` option."""
+
+    for argument in arguments:
+        if argument.startswith("--checks") or argument.startswith("--exclude-checks"):
+            return False
+        if argument == "-c" or argument.startswith("-c="):
+            return False
+    return True
+
+
 def _build_schemathesis_command(
     *,
     base_url: str,
@@ -104,6 +121,10 @@ def _build_schemathesis_command(
     extra_args: Iterable[str] = (),
 ) -> list[str]:
     """Compose the ``uvx schemathesis run`` command line."""
+
+    normalized_args = list(extra_args)
+    if _should_apply_default_exclusions(normalized_args):
+        normalized_args = ["--exclude-checks", ",".join(DEFAULT_EXCLUDED_CHECKS), *normalized_args]
 
     command = [
         "uvx",
@@ -115,7 +136,7 @@ def _build_schemathesis_command(
         "--request-timeout",
         str(request_timeout),
     ]
-    command.extend(extra_args)
+    command.extend(normalized_args)
     return command
 
 
