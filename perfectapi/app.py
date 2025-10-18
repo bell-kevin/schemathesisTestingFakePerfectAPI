@@ -13,7 +13,6 @@ from typing import Final
 from fastapi import FastAPI, Request
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, constr, conint
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.routing import Match
 from starlette.status import HTTP_405_METHOD_NOT_ALLOWED
 
 
@@ -61,12 +60,11 @@ _METADATA: Final = ServiceMetadata()
 def _allowed_methods(application: FastAPI, path: str) -> list[str]:
     """Return the HTTP methods supported by the application for the given path."""
 
-    scope = {"type": "http", "path": path, "root_path": ""}
     allowed: set[str] = set()
 
     for route in application.router.routes:
-        match, _ = route.matches(scope)
-        if match is not Match.FULL:
+        path_regex = getattr(route, "path_regex", None)
+        if path_regex is None or path_regex.match(path) is None:
             continue
 
         methods = getattr(route, "methods", None)
@@ -88,10 +86,12 @@ class EnsureAllowHeaderMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):  # type: ignore[override]
         response = await call_next(request)
 
-        if response.status_code == HTTP_405_METHOD_NOT_ALLOWED and "allow" not in response.headers:
+        if response.status_code == HTTP_405_METHOD_NOT_ALLOWED:
             allowed_methods = _allowed_methods(request.app, request.scope["path"])
             if allowed_methods:
-                response.headers["Allow"] = ", ".join(allowed_methods)
+                allow_header = ", ".join(allowed_methods)
+                if response.headers.get("allow") != allow_header:
+                    response.headers["Allow"] = allow_header
 
         return response
 
