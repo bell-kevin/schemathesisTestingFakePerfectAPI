@@ -44,6 +44,17 @@ The repository includes a [Render Blueprint](render.yaml) so you can deploy the 
 
 The blueprint listens on the port provided by Render and exposes the OpenAPI docs at `/docs`, which Render also uses for its health check.
 
+# Local run
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# Export OpenAPI (optional): use the static file already checked in
+# Run Schemathesis (full)
+schemathesis run http://127.0.0.1:8000/openapi.json --workers 32 --checks all --exclude-checks response_headers_conformance
+
+# Or phases=fuzzing for speed
+schemathesis run http://127.0.0.1:8000/openapi.json --phases=fuzzing --workers 32 --checks all --exclude-checks response_headers_conformance
+
+
 --------------------------------------------------------------------------------------------------------------------------
 == We're Using GitHub Under Protest ==
 
