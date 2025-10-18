@@ -1,3 +1,5 @@
 [phases.coverage]
-# Limit “unexpected method” tests to none (disables TRACE/PUT/DELETE etc. that aren't in your spec)
 unexpected-methods = []
+
+[generation]
+allow-x00 = false
