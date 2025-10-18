@@ -79,3 +79,21 @@ def test_echo_endpoint_rejects_invalid_repeat(client: TestClient) -> None:
     body = response.json()
     assert body["detail"][0]["loc"] == ["body", "repeat"]
     assert body["detail"][0]["type"] == "less_than_equal"
+
+
+def test_status_unsupported_method_reports_allowed_methods(client: TestClient) -> None:
+    """405 responses must advertise the methods supported for the resource."""
+
+    response = client.request("TRACE", "/status")
+
+    assert response.status_code == 405
+    assert set(map(str.strip, response.headers["allow"].split(","))) == {"GET", "HEAD", "OPTIONS"}
+
+
+def test_echo_unsupported_method_reports_allowed_methods(client: TestClient) -> None:
+    """All endpoints should expose an Allow header on 405 responses."""
+
+    response = client.request("TRACE", "/echo")
+
+    assert response.status_code == 405
+    assert set(map(str.strip, response.headers["allow"].split(","))) == {"OPTIONS", "POST"}
