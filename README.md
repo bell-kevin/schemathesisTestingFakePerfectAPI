@@ -1,140 +1,69 @@
-# Perfect Schema API
+<a name="readme-top"></a>
 
-This repository contains a production-grade FastAPI application that exposes a rich,
-contract-driven API surface. It is intentionally designed to exercise Schemathesis and
-other contract-testing tools with realistic patterns including authentication, pagination,
-filtering, nested resources, and strict error handling.
+# 
 
-## Features
+## Running the Fake Perfect API
 
-- **FastAPI + SQLModel + SQLite** persistence layer with deterministic seed data
-- **OAuth2 password flow** and **API key** authentication with JWT-backed tokens
-- Comprehensive resource coverage for users and orders including filtering, sorting,
-and conditional requests (ETag / `If-None-Match`)
-- Strict RFC 7807 problem details for all error responses
-- CORS-enabled, proper 405 handling with `Allow` header, full OPTIONS support
-- Static OpenAPI 3.1 export kept in sync with the live schema
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Start the development server:
+   ```bash
+   uvicorn perfectapi.app:app --reload
+   ```
+3. Visit http://localhost:8000/docs to explore the automatically generated OpenAPI documentation.
 
-## Getting Started
-
-### Requirements
-
-- Python 3.11+
-- Poetry/pip (any PEP 517 installer)
-
-Install dependencies in editable mode:
+The repository also contains a static `openapi.yaml` document that mirrors the FastAPI-generated schema. It can be used directly with Schemathesis:
 
 ```bash
-python -m pip install --upgrade pip
-pip install -e .
+schemathesis run openapi.yaml --base-url=http://localhost:8000
 ```
 
-### Running the API
+### Running Schemathesis against the Render deployment
+
+Render's free instances hibernate when idle and can take up to a minute to resume.  Schemathesis applies a 10 second read timeout while downloading the OpenAPI document, so attempts to load `https://fake-perfect-api.onrender.com/openapi.yaml` directly frequently fail on a cold start.  Use the warm-up helper shipped with this repository to wait for the service and then execute Schemathesis with the local schema file:
 
 ```bash
-uvicorn app.main:app --host 127.0.0.1 --port 8000
+python -m perfectapi.warmup -- --checks=all
 ```
 
-Seed data is created automatically at startup with deterministic UUIDs and timestamps.
-Use the `/status` endpoint to verify uptime and deployment metadata.
+Cloudflare sits in front of Render and strips the `Allow` header from `TRACE` requests before they reach the application.  To avoid spurious failures from Schemathesis' `unsupported_method` check the warm-up helper automatically adds `--exclude-checks unsupported_method` unless you supply your own `--checks` / `--exclude-checks` arguments.  If you prefer to invoke Schemathesis manually, include the same flag in your command line.
 
-### Authentication Reference
+The script accepts additional Schemathesis flags after the `--` separator and defaults the base URL to the production deployment.  Use `python -m perfectapi.warmup --help` for all available options (timeouts, base URL overrides, etc.).
 
-| Flow          | Details                                                     |
-| ------------- | ----------------------------------------------------------- |
-| OAuth2 token  | `POST /token` with `username=admin`, `password=adminpass`   |
-| Reader token  | `POST /token` with `username=reader`, `password=readerpass` |
-| API key       | Add header `X-API-Key: service-key-1`                       |
+## Deploying on Render (managed free tier)
 
-Write operations (`POST`/`PUT`/`PATCH`/`DELETE`) require either a bearer token with the
-appropriate scope (`users:write` or `orders:write`) or the API key.
+The repository includes a [Render Blueprint](render.yaml) so you can deploy the API on Render's free web service tier:
 
-### Schemathesis
+1. Create a new Render account (or log in) and click **New → Blueprint Deploy**.
+2. Point Render at this repository URL and select the `render.yaml` file when prompted.
+3. Accept the defaults in the generated service (plan: **Free**, runtime: **Python 3.11**).
+4. Click **Deploy**. Render will install the dependencies via `pip install -r requirements.txt` and start Uvicorn with `perfectapi.app:app`.
+5. Once the deploy finishes, your API will be available at the HTTPS URL Render assigns (check the **Logs** tab if you need to troubleshoot).
 
-Full contract test invocation used locally and in CI:
+The blueprint listens on the port provided by Render and exposes the OpenAPI docs at `/docs`, which Render also uses for its health check.
 
-```bash
-schemathesis run http://127.0.0.1:8000/openapi.json \
-  --workers 32 \
-  --checks all \
-  --exclude-checks response_headers_conformance
-```
+--------------------------------------------------------------------------------------------------------------------------
+== We're Using GitHub Under Protest ==
 
-For a faster fuzzing-only pass:
+This project is currently hosted on GitHub.  This is not ideal; GitHub is a
+proprietary, trade-secret system that is not Free and Open Souce Software
+(FOSS).  We are deeply concerned about using a proprietary system like GitHub
+to develop our FOSS project. I have a [website](https://bellKevin.me) where the
+project contributors are actively discussing how we can move away from GitHub
+in the long term.  We urge you to read about the [Give up GitHub](https://GiveUpGitHub.org) campaign 
+from [the Software Freedom Conservancy](https://sfconservancy.org) to understand some of the reasons why GitHub is not 
+a good place to host FOSS projects.
 
-```bash
-schemathesis run http://127.0.0.1:8000/openapi.json \
-  --phases=fuzzing \
-  --workers 32 \
-  --checks all \
-  --exclude-checks response_headers_conformance
-```
+If you are a contributor who personally has already quit using GitHub, please
+email me at **bellKevin@pm.me** for how to send us contributions without
+using GitHub directly.
 
-Configuration is stored in [`schemathesis.toml`](schemathesis.toml), which disables
-unexpected HTTP method exploration and null-byte payloads.
+Any use of this project's code by GitHub Copilot, past or present, is done
+without our permission.  We do not consent to GitHub's use of this project's
+code in Copilot.
 
-#### Running against the hosted demo
+![Logo of the GiveUpGitHub campaign](https://sfconservancy.org/img/GiveUpGitHub.png)
 
-The public instance at `https://fake-perfect-api.onrender.com` runs on Render's free
-plan, which suspends the service after periods of inactivity. When the instance is
-waking up, fetching the OpenAPI document can take longer than the default
-10-second client timeout. Pass the [`--wait-for-schema`](https://schemathesis.readthedocs.io/en/stable/cli.html#cmdoption-schemathesis-run-wait-for-schema)
-flag so Schemathesis patiently waits for the schema to become available, and relax the
-per-request timeout to accommodate the cold start:
-
-```powershell
-uvx schemathesis run https://fake-perfect-api.onrender.com/openapi.json `
-  --wait-for-schema 60 `
-  --request-timeout 30 `
-  --phases=fuzzing `
-  --workers 32 `
-  --checks all `
-  --exclude-checks response_headers_conformance
-```
-
-You can also warm the service manually with `Invoke-WebRequest` or `curl` before
-executing the Schemathesis suite if you prefer to keep the default timeouts.
-
-### Testing
-
-```bash
-pytest
-```
-
-The smoke suite verifies OpenAPI availability and ensures the committed static schema
-matches the live application.
-
-### Static OpenAPI Document
-
-`openapi-static/openapi.json` is a checked-in snapshot of the generated schema. After
-making API changes, re-export it with:
-
-```bash
-python - <<'PY'
-from pathlib import Path
-from fastapi.testclient import TestClient
-
-from app.main import app
-
-schema = TestClient(app).get('/openapi.json').json()
-Path('openapi-static/openapi.json').write_text(__import__('json').dumps(schema, indent=2))
-PY
-```
-
-### Docker
-
-Build and run the production image:
-
-```bash
-docker build -t perfect-schema-api .
-docker run -p 8000:8000 perfect-schema-api
-```
-
-The container entrypoint launches Uvicorn with 2 workers, proxy header support, and
-`--forwarded-allow-ips='*'` to operate correctly behind reverse proxies.
-
-## Continuous Integration
-
-GitHub Actions workflow [`contract.yml`](.github/workflows/contract.yml) installs the
-package, boots the application, and executes Schemathesis with the full `--checks all`
-configuration to guarantee contract conformance on every commit.
+<p align="right"><a href="#readme-top">back to top</a></p>
