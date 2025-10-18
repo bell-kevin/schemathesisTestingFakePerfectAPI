@@ -8,9 +8,9 @@ unexpected server-side errors.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, Final
+from typing import Annotated, Any, Final
 
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, StrictBool, constr, conint
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.status import HTTP_405_METHOD_NOT_ALLOWED
@@ -69,6 +69,20 @@ def _parse_query_boolean(value: bool | str) -> bool:
 
 
 StrictQueryBool = Annotated[bool, BeforeValidator(_parse_query_boolean)]
+
+
+def _invalid_case_sensitive_detail(value: str) -> list[dict[str, Any]]:
+    """Construct a validation error payload for invalid case-sensitive inputs."""
+
+    return [
+        {
+            "type": "value_error",
+            "loc": ["query", "case_sensitive"],
+            "msg": "Value error, Invalid boolean string",
+            "input": value,
+            "ctx": {"error": {}},
+        }
+    ]
 
 
 class InspectResponse(BaseModel):
@@ -145,6 +159,7 @@ def create_app() -> FastAPI:
 
     @application.get("/inspect", response_model=InspectResponse, tags=["utilities"])
     async def inspect(
+        request: Request,
         message: Annotated[
             str,
             Query(
@@ -161,6 +176,13 @@ def create_app() -> FastAPI:
         ] = True,
     ) -> InspectResponse:
         """Analyse a message and report simple textual characteristics."""
+
+        raw_value = request.query_params.get("case_sensitive")
+        if raw_value is not None:
+            try:
+                _parse_query_boolean(raw_value)
+            except ValueError as exc:  # pragma: no cover - defensive guard
+                raise HTTPException(status_code=422, detail=_invalid_case_sensitive_detail(raw_value)) from exc
 
         normalized = message if case_sensitive else message.casefold()
         mirrored = message[::-1]
